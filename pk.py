@@ -16,7 +16,7 @@ ADMINS = {6882674372}  # Add more admin IDs if needed
 OWNER_ID = 6882674372
 # Attack settings
 nxtlvl_PATH = "./SOULCRACK"
-MAX_CONCURRENT_ATTACKS = 2  # Set the maximum number of concurrent attacks
+MAX_CONCURRENT_ATTACKS = 3  # Set the maximum number of concurrent attacks
 
 # Blocked Ports
 BLOCKED_PORTS = {21, 22, 80, 443, 3306, 8700, 20000, 443, 17500, 9031, 20002, 20001}  # Add ports to blocklist
@@ -151,8 +151,8 @@ def handle_attack(message):
             return
         
         # Limit attack duration to 120 seconds if it exceeds
-        if time_duration > 120:
-            time_duration = 120
+        if time_duration > 150:
+            time_duration = 150
     except ValueError:
         bot.reply_to(message, "❌ **Port and Time must be integers!** 📟")
         return
