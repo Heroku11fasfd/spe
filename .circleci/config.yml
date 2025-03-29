@@ -8,42 +8,58 @@ jobs:
     steps:
       - checkout
       
-      # Verify Python is available
+      # Debug: Show directory structure
       - run:
-          name: Check Python version
-          command: python --version
+          name: Verify repository contents
+          command: ls -la
 
-      # Install dependencies with error handling
+      # Python environment setup
+      - run:
+          name: Setup Python environment
+          command: |
+            python --version
+            pip --version
+            python -m pip install --upgrade pip wheel
+
+      # Dependency installation with retry
       - run:
           name: Install dependencies
           command: |
-            python -m pip install --upgrade pip
-            pip install telebot pymongo aiohttp python-telegram-bot pyTelegramBotAPI certifi || exit 1
+            pip install --retries 3 --timeout 60 \
+              telebot \
+              pymongo \
+              aiohttp \
+              python-telegram-bot \
+              pyTelegramBotAPI \
+              certifi
+            pip check  # Verify no dependency conflicts
 
-      # More cautious permission setting
+      # Script preparation
       - run:
-          name: Set execute permissions
+          name: Prepare script
           command: |
-            if [ -f "pk.py" ]; then
-              chmod +x pk.py
-            else
-              echo "Error: pk.py not found!"
+            if [ ! -f "pk.py" ]; then
+              echo "Error: pk.py not found in working directory!"
+              ls -la
               exit 1
             fi
+            chmod +x pk.py
+            file pk.py  # Verify file type
 
-      # Run script with error handling
+      # Run script with timeout
       - run:
           name: Execute Python script
           command: |
-            if ! python pk.py; then
-              echo "Script failed with exit code $?"
-              exit 1
-            fi
+            timeout 300 python pk.py  # 5 minute timeout
+            echo "Script exit code: $?"
+          no_output_timeout: 10m  # Overall step timeout
 
-      # Store specific artifacts
+      # Store artifacts
       - store_artifacts:
           path: ~/project
           when: always
+      - store_test_results:
+          path: test-results
 
 workflows:
   scheduled-run:
