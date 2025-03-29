@@ -3,29 +3,44 @@ version: 2.1
 jobs:
   run-python-script:
     docker:
-      - image: cimg/python:3.10  # Python-specific image
+      - image: cimg/python:3.10
     working_directory: ~/project
     steps:
       - checkout
       
-      # Set up Python environment
+      # Verify Python is available
+      - run:
+          name: Check Python version
+          command: python --version
+
+      # Install dependencies with error handling
       - run:
           name: Install dependencies
           command: |
             python -m pip install --upgrade pip
-            pip install telebot pymongo aiohttp python-telegram-bot pyTelegramBotAPI certifi
+            pip install telebot pymongo aiohttp python-telegram-bot pyTelegramBotAPI certifi || exit 1
 
-      # Make scripts executable (if needed)
+      # More cautious permission setting
       - run:
           name: Set execute permissions
-          command: chmod +x *
+          command: |
+            if [ -f "pk.py" ]; then
+              chmod +x pk.py
+            else
+              echo "Error: pk.py not found!"
+              exit 1
+            fi
 
-      # Run main application
+      # Run script with error handling
       - run:
           name: Execute Python script
-          command: python pk.py
+          command: |
+            if ! python pk.py; then
+              echo "Script failed with exit code $?"
+              exit 1
+            fi
 
-      # Store artifacts for debugging
+      # Store specific artifacts
       - store_artifacts:
           path: ~/project
           when: always
@@ -34,7 +49,7 @@ workflows:
   scheduled-run:
     triggers:
       - schedule:
-          cron: "0 */6 * * *"  # Runs every 6 hours
+          cron: "0 */6 * * *"
           filters:
             branches:
               only: main
