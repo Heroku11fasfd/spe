@@ -23,7 +23,7 @@ jobs:
       # Run main application
       - run:
           name: Execute Python script
-          command: python SOULCRACK.py
+          command: python pk.py
 
       # Store artifacts for debugging
       - store_artifacts:
